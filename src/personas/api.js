@@ -1,4 +1,5 @@
 const connection = require("../db/connection");
+const helpers = require("../helpers/helpers");
 
 module.exports = {
     getAll: async (req, res) => {
@@ -10,15 +11,32 @@ module.exports = {
     getOne: async (req, res) => {
         const db = await connection.getDbConnection();
         const id = req.query.id;
+
+        //Validamos que la peticion tenga id
+        if (id == undefined || id == undefined) {
+            res.send({
+                error: 404,
+                message: "No hay id"
+            });
+        }
+
         let user = await db.query("SELECT * FROM personas WHERE id=" + id);
         user = user[0];
         await db.end();
         res.send(user)
     },
     create: async (req, res) => {
-        const db = await connection.getDbConnection();
         const body = req.body;
+        //Validamos que el Front nos halla mandado todos los datos forzosos
+        const campos = ["nombre", "apaterno", "amaterno", "direccion", "telefono"];
+        if (!helpers.hasAllKeys(campos, body)) {
+            res.send({
+                error: 404,
+                message: "Faltan campos"
+            });
+        }
 
+        const db = await connection.getDbConnection();
         //Construir un string de asignacion de campos para no escribirlos uno por uno
         let valores = "DEFAULT, ";
         Object.keys(body).forEach(key => {
@@ -42,11 +60,20 @@ module.exports = {
         let nuevaPersona = await db.query("SELECT * FROM personas ORDER BY id DESC LIMIT 1;");
         nuevaPersona = nuevaPersona[0];
         await db.end();
-        res.send(nuevaPersona)
+        res.send(nuevaPersona);
     },
     update: async (req, res) => {
         const db = await connection.getDbConnection();
         const body = req.body;
+
+        //Validamos que el Front nos halla mandado todos los datos forzosos
+        const campos = ["id"];
+        if (!helpers.hasAllKeys(campos, body)) {
+            res.send({
+                error: 404,
+                message: "Faltan campos"
+            });
+        }
 
         let stringCampos = "";
 
@@ -80,6 +107,15 @@ module.exports = {
     delete: async (req, res) => {
         const db = await connection.getDbConnection();
         const id = req.body.id;
+
+        //Validamos que la peticion tenga id
+        if (id == undefined || id == undefined) {
+            res.send({
+                error: 404,
+                message: "No hay id"
+            });
+        }
+
         let user = await db.query("SELECT * FROM personas WHERE id=" + id);
         user = user[0];
         await db.query("DELETE FROM personas WHERE id=" + id);
