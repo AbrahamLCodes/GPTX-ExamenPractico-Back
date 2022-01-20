@@ -4,7 +4,7 @@ module.exports = {
         return await mysql.createConnection({
             host: "localhost",
             user: "root",
-            password: "root123456789",
+            password: "root",
             database: "gptx_examen_db"
         });
     }

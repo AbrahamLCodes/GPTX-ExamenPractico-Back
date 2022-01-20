@@ -3,18 +3,20 @@ const helpers = require("../helpers/helpers");
 
 module.exports = {
     getAll: async (req, res) => {
+        console.log("getAll Personas");
         const db = await connection.getDbConnection();
         const users = await db.query("SELECT * FROM personas");
         await db.end();
-        res.send(users);
+        res.json(users);
     },
     getOne: async (req, res) => {
+        console.log("getOne Persona");
         const db = await connection.getDbConnection();
         const id = req.query.id;
 
         //Validamos que la peticion tenga id
         if (id == undefined || id == undefined) {
-            res.send({
+            res.json({
                 error: 404,
                 message: "No hay id"
             });
@@ -23,14 +25,15 @@ module.exports = {
         let user = await db.query("SELECT * FROM personas WHERE id=" + id);
         user = user[0];
         await db.end();
-        res.send(user)
+        res.json(user)
     },
     create: async (req, res) => {
+        console.log("Create Persona");
         const body = req.body;
         //Validamos que el Front nos halla mandado todos los datos forzosos
         const campos = ["nombre", "apaterno", "amaterno", "direccion", "telefono"];
         if (!helpers.hasAllKeys(campos, body)) {
-            res.send({
+            res.json({
                 error: 404,
                 message: "Faltan campos"
             });
@@ -50,7 +53,7 @@ module.exports = {
         const query = "INSERT INTO personas VALUES(" + valores + ")";
         await db.query(query).catch(err => {
             if (err) {
-                res.send({
+                res.json({
                     err: 505,
                     message: "No se pudo completar el query"
                 });
@@ -60,16 +63,17 @@ module.exports = {
         let nuevaPersona = await db.query("SELECT * FROM personas ORDER BY id DESC LIMIT 1;");
         nuevaPersona = nuevaPersona[0];
         await db.end();
-        res.send(nuevaPersona);
+        res.json(nuevaPersona);
     },
     update: async (req, res) => {
+        console.log("Update Persona");
         const db = await connection.getDbConnection();
         const body = req.body;
 
         //Validamos que el Front nos halla mandado todos los datos forzosos
         const campos = ["id"];
         if (!helpers.hasAllKeys(campos, body)) {
-            res.send({
+            res.json({
                 error: 404,
                 message: "Faltan campos"
             });
@@ -93,7 +97,7 @@ module.exports = {
 
         await db.query(query).catch(err => {
             if (err) {
-                res.send({
+                res.json({
                     error: 505,
                     message: "No se pudo completar el query"
                 })
@@ -102,15 +106,16 @@ module.exports = {
 
         const personaEditada = await db.query("SELECT * FROM personas WHERE id=" + id);
         await db.end();
-        res.send(personaEditada[0]);
+        res.json(personaEditada[0]);
     },
     delete: async (req, res) => {
+        console.log("delete Persona");
         const db = await connection.getDbConnection();
-        const id = req.body.id;
+        const id = req.query.id;
 
         //Validamos que la peticion tenga id
         if (id == undefined || id == undefined) {
-            res.send({
+            res.json({
                 error: 404,
                 message: "No hay id"
             });
@@ -120,7 +125,7 @@ module.exports = {
         user = user[0];
         await db.query("DELETE FROM personas WHERE id=" + id);
         await db.end();
-        res.send(user);
+        res.json(user);
     }
 }
 
